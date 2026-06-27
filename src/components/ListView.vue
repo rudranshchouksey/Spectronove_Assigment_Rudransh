@@ -87,172 +87,167 @@ function sortBy(field: TaskSortField) {
 <template>
   <div class="list-view">
     <div v-for="section in statusOrder" :key="section.status" class="list-section">
-      <!-- Section Header -->
-      <div class="section-header">
-        <div class="section-header-left">
-          <span
-            class="status-pill"
-            :style="{
-              backgroundColor: section.badgeBg,
-              color: section.badgeText,
-              borderColor: section.badgeBorder,
-            }"
+      <div class="section-container">
+        <!-- Section Header -->
+        <div class="section-header" :class="{ 'section-header--collapsed': isSectionCollapsed(section.status) }">
+          <div class="section-header-left">
+            <span
+              class="status-pill"
+              :style="{
+                backgroundColor: section.badgeBg,
+                color: section.badgeText,
+                borderColor: section.badgeBorder,
+              }"
+            >
+              <svg
+                class="status-pill-icon"
+                width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="2 4"
+              >
+                <circle cx="12" cy="12" r="9" />
+              </svg>
+              {{ section.label }}
+            </span>
+            <span class="task-count">
+              {{ manager.tasksByStatus.value[section.status].length }}
+            </span>
+          </div>
+          <button
+            class="collapse-btn"
+            @click="toggleSection(section.status)"
           >
             <svg
-              v-if="section.status === 'todo'"
-              class="status-pill-icon"
-              width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="2 4"
-            >
-              <circle cx="12" cy="12" r="9" />
-            </svg>
-            <span v-else class="status-pill-dot" :style="{ backgroundColor: section.dotColor }"></span>
-            {{ section.label }}
-          </span>
-          <span class="task-count">
-            {{ manager.tasksByStatus.value[section.status].length }}
-          </span>
+              class="collapse-icon"
+              :class="{ 'collapse-icon--collapsed': isSectionCollapsed(section.status) }"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            ><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
         </div>
-        <button
-          class="collapse-btn"
-          @click="toggleSection(section.status)"
-        >
-          <svg
-            class="collapse-icon"
-            :class="{ 'collapse-icon--collapsed': isSectionCollapsed(section.status) }"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24"
-          ><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-      </div>
 
-      <!-- Table -->
-      <Transition name="slide">
-        <div v-if="!isSectionCollapsed(section.status)" class="table-wrapper">
-          <!-- Table Header -->
-          <div class="table-header">
-            <div class="th-cell th-drag"></div>
-            <button class="th-cell th-name" @click="sortBy('title')">
-              <svg class="th-icon" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="6" height="16" rx="2" /><rect x="14" y="10" width="6" height="10" rx="2" /></svg>
-              Task Name
-            </button>
-            <div class="th-cell th-desc">
-              <svg class="th-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              Descriptions
-            </div>
-            <div class="th-cell th-people">
-              <svg class="th-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-              People
-            </div>
-            <div class="th-cell th-type">
-              <svg class="th-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M7 12h10M9 18h6" /></svg>
-              Type
-            </div>
-            <button class="th-cell th-timeline" @click="sortBy('dueDate')">
-              <svg class="th-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              Timeline Date
-            </button>
-            <button class="th-cell th-priority" @click="sortBy('priority')">
-              <svg class="th-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"/></svg>
-              Priority
-            </button>
-            <div class="th-cell th-actions"></div>
-          </div>
-
-          <!-- Table Rows -->
-          <div
-            v-for="task in manager.tasksByStatus.value[section.status]"
-            :key="task.id"
-            class="table-row"
-            @click="emit('open-detail', task)"
-          >
-            <!-- Drag Handle + Checkbox -->
-            <div class="td-drag">
-              <svg class="drag-dots" fill="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
-              <input
-                type="checkbox"
-                :checked="manager.isSelected(task.id)"
-                class="row-checkbox"
-                @click.stop="manager.toggleSelection(task.id)"
-              />
+        <!-- Table -->
+        <Transition name="slide">
+          <div v-if="!isSectionCollapsed(section.status)" class="table-wrapper">
+            <!-- Table Header -->
+            <div class="table-header">
+              <button class="th-cell th-name" @click="sortBy('title')">
+                <svg class="th-icon" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="6" height="16" rx="2" /><rect x="14" y="10" width="6" height="10" rx="2" /></svg>
+                Task Name
+              </button>
+              <div class="th-cell th-desc">
+                <svg class="th-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Descriptions
+              </div>
+              <div class="th-cell th-people">
+                <svg class="th-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                People
+              </div>
+              <div class="th-cell th-type">
+                <svg class="th-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M7 12h10M9 18h6" /></svg>
+                Type
+              </div>
+              <button class="th-cell th-timeline" @click="sortBy('dueDate')">
+                <svg class="th-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Timeline Date
+              </button>
+              <button class="th-cell th-priority" @click="sortBy('priority')">
+                <svg class="th-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"/></svg>
+                Priority
+              </button>
+              <div class="th-cell th-actions"></div>
             </div>
 
-            <!-- Task Name -->
-            <div class="td-name">
-              <span class="task-title">{{ task.title }}</span>
-            </div>
+            <!-- Table Rows -->
+            <div
+              v-for="task in manager.tasksByStatus.value[section.status]"
+              :key="task.id"
+              class="table-row"
+              @click="emit('open-detail', task)"
+            >
+              <!-- Task Name Column (includes drag + checkbox) -->
+              <div class="td-name">
+                <svg class="drag-dots" fill="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+                <input
+                  type="checkbox"
+                  :checked="manager.isSelected(task.id)"
+                  class="row-checkbox"
+                  @click.stop="manager.toggleSelection(task.id)"
+                />
+                <span class="task-title">{{ task.title }}</span>
+              </div>
 
-            <!-- Description -->
-            <div class="td-desc">
-              <span class="task-description">{{ task.description }}</span>
-            </div>
+              <!-- Description -->
+              <div class="td-desc">
+                <span class="task-description">{{ task.description }}</span>
+              </div>
 
-            <!-- People (Avatar Stack) -->
-            <div class="td-people">
-              <div class="avatar-stack">
-                <div
-                  v-for="(person, idx) in getAssigneeStack(task)"
-                  :key="person"
-                  class="avatar-sm"
-                  :class="{ 'avatar-sm--overlap': idx > 0 }"
-                  :style="{ backgroundColor: getAvatarColor(person), zIndex: 10 - idx }"
-                  :title="person"
-                >
-                  {{ getInitials(person) }}
+              <!-- People (Avatar Stack) -->
+              <div class="td-people">
+                <div class="avatar-stack">
+                  <div
+                    v-for="(person, idx) in getAssigneeStack(task)"
+                    :key="person"
+                    class="avatar-sm"
+                    :class="{ 'avatar-sm--overlap': idx > 0 }"
+                    :style="{ backgroundColor: getAvatarColor(person), zIndex: 10 - idx }"
+                    :title="person"
+                  >
+                    {{ getInitials(person) }}
+                  </div>
                 </div>
+              </div>
+
+              <!-- Type / Tags -->
+              <div class="td-type">
+                <span
+                  v-if="task.tags.length > 0"
+                  class="type-badge"
+                >
+                  <!-- Feature icon -->
+                  <svg v-if="task.tags[0].toLowerCase() === 'feature'" class="type-icon h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4z" /></svg>
+                  <!-- Bug icon -->
+                  <svg v-else-if="task.tags[0].toLowerCase() === 'bug'" class="type-icon h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <!-- Review icon -->
+                  <svg v-else-if="task.tags[0].toLowerCase() === 'review'" class="type-icon h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <!-- Testing icon -->
+                  <svg v-else-if="task.tags[0].toLowerCase() === 'testing'" class="type-icon h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <!-- Default -->
+                  <svg v-else class="type-icon h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                  {{ capitalizeTag(task.tags[0]) }}
+                </span>
+              </div>
+
+              <!-- Timeline Date -->
+              <div class="td-timeline">
+                <span class="timeline-text" :class="{ 'timeline-text--overdue': isOverdue(task.dueDate, task.status) }">
+                  {{ formatTimelineDate(task.dueDate) }}
+                </span>
+              </div>
+
+              <!-- Priority -->
+              <div class="td-priority">
+                <span class="priority-badge" :class="'priority-badge--' + task.priority">
+                  <svg class="priority-flag" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"/></svg>
+                  {{ PRIORITY_CONFIG[task.priority].label }}
+                </span>
+              </div>
+
+              <!-- Three-dot Menu -->
+              <div class="td-actions">
+                <button class="action-menu-btn" @click.stop>
+                  <svg class="action-dots" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01"/></svg>
+                </button>
               </div>
             </div>
 
-            <!-- Type / Tags -->
-            <div class="td-type">
-              <span
-                v-if="task.tags.length > 0"
-                class="type-badge"
-              >
-                <!-- Feature icon -->
-                <svg v-if="task.tags[0].toLowerCase() === 'feature'" class="type-icon h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4z" /></svg>
-                <!-- Bug icon -->
-                <svg v-else-if="task.tags[0].toLowerCase() === 'bug'" class="type-icon h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <!-- Review icon -->
-                <svg v-else-if="task.tags[0].toLowerCase() === 'review'" class="type-icon h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <!-- Testing icon -->
-                <svg v-else-if="task.tags[0].toLowerCase() === 'testing'" class="type-icon h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <!-- Default -->
-                <svg v-else class="type-icon h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
-                {{ capitalizeTag(task.tags[0]) }}
-              </span>
-            </div>
-
-            <!-- Timeline Date -->
-            <div class="td-timeline">
-              <span class="timeline-text" :class="{ 'timeline-text--overdue': isOverdue(task.dueDate, task.status) }">
-                {{ formatTimelineDate(task.dueDate) }}
-              </span>
-            </div>
-
-            <!-- Priority -->
-            <div class="td-priority">
-              <span class="priority-badge" :class="'priority-badge--' + task.priority">
-                <svg class="priority-flag" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"/></svg>
-                {{ PRIORITY_CONFIG[task.priority].label }}
-              </span>
-            </div>
-
-            <!-- Three-dot Menu -->
-            <div class="td-actions">
-              <button class="action-menu-btn" @click.stop>
-                <svg class="action-dots" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01"/></svg>
-              </button>
+            <!-- Empty State -->
+            <div
+              v-if="manager.tasksByStatus.value[section.status].length === 0"
+              class="empty-state"
+            >
+              No tasks in this section
             </div>
           </div>
-
-          <!-- Empty State -->
-          <div
-            v-if="manager.tasksByStatus.value[section.status].length === 0"
-            class="empty-state"
-          >
-            No tasks in this section
-          </div>
-        </div>
-      </Transition>
+        </Transition>
+      </div>
     </div>
   </div>
 </template>
@@ -262,26 +257,37 @@ function sortBy(field: TaskSortField) {
 .list-view {
   display: flex;
   flex-direction: column;
-  gap: 32px; /* Increased gap between sections */
+  gap: 24px;
   padding-bottom: 40px;
 }
 
-/* ── Section Header ─────────────────────────────────────────── */
-.list-section {
-  /* spacing per section */
+/* ── Section Container ──────────────────────────────────────── */
+.section-container {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
+/* ── Section Header ─────────────────────────────────────────── */
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px; /* More space before table */
+  padding: 16px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.section-header--collapsed {
+  border-bottom: none;
 }
 
 .section-header-left {
   display: flex;
   align-items: center;
-  gap: 16px; /* Increased gap between pill and count */
+  gap: 16px;
 }
 
 .status-pill {
@@ -293,12 +299,6 @@ function sortBy(field: TaskSortField) {
   font-size: 13px;
   font-weight: 600;
   border: 1px solid;
-}
-
-.status-pill-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
 }
 
 .status-pill-icon {
@@ -313,9 +313,9 @@ function sortBy(field: TaskSortField) {
   height: 28px;
   padding: 0 8px;
   border-radius: 6px;
-  border: 1px solid #f3f4f6;
+  border: 1px solid #e5e7eb;
   background: #ffffff;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   color: #6b7280;
 }
@@ -327,7 +327,7 @@ function sortBy(field: TaskSortField) {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid #f3f4f6;
+  border: 1px solid #e5e7eb;
   background: #ffffff;
   color: #9ca3af;
   cursor: pointer;
@@ -351,30 +351,26 @@ function sortBy(field: TaskSortField) {
 
 /* ── Table Wrapper ──────────────────────────────────────────── */
 .table-wrapper {
-  border-radius: 10px;
-  border: 1px solid #f1f3f5; /* Fainter outer border */
   background: #ffffff;
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); /* very subtle shadow */
 }
 
 /* ── Table Grids ────────────────────────────────────────────── */
 .table-header {
   display: grid;
-  /* Adjusted column widths for better spacing */
-  grid-template-columns: 64px 1.4fr 2fr 130px 120px 230px 120px 56px;
+  grid-template-columns: 2fr 2.5fr 130px 120px 240px 130px 60px;
   align-items: center;
   height: 52px;
   background: #ffffff;
-  border-bottom: 1px solid #f1f3f5;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .table-row {
   display: grid;
-  grid-template-columns: 64px 1.4fr 2fr 130px 120px 230px 120px 56px;
+  grid-template-columns: 2fr 2.5fr 130px 120px 240px 130px 60px;
   align-items: center;
-  height: 60px; /* Taller rows for more breathing room */
-  border-bottom: 1px solid #f1f3f5;
+  height: 60px;
+  border-bottom: 1px solid #e5e7eb;
   background: #ffffff;
   transition: background-color 0.15s;
   cursor: pointer;
@@ -396,9 +392,9 @@ function sortBy(field: TaskSortField) {
   font-size: 13px;
   font-weight: 500;
   color: #6b7280;
-  border-right: 1px solid #f1f3f5;
+  border-right: 1px solid #e5e7eb;
   height: 100%;
-  padding: 0 20px; /* Increased cell padding */
+  padding: 0 20px;
   border-top: none;
   border-bottom: none;
   background: none;
@@ -422,12 +418,12 @@ button.th-cell:hover {
   color: #9ca3af;
 }
 
-.td-drag, .td-name, .td-desc, .td-people, .td-type, .td-timeline, .td-priority, .td-actions {
+.td-name, .td-desc, .td-people, .td-type, .td-timeline, .td-priority, .td-actions {
   display: flex;
   align-items: center;
   height: 100%;
-  padding: 0 20px; /* Match header padding */
-  border-right: 1px solid #f1f3f5;
+  padding: 0 20px;
+  border-right: 1px solid #e5e7eb;
 }
 
 .th-cell:last-child,
@@ -435,11 +431,10 @@ button.th-cell:hover {
   border-right: none;
 }
 
-/* ── Drag Handle + Checkbox ─────────────────────────────────── */
-.td-drag {
-  gap: 12px; /* Spread drag dots and checkbox */
-  padding: 0 16px;
-  justify-content: center;
+/* ── Task Name Column (includes drag & checkbox) ────────────── */
+.td-name {
+  gap: 12px;
+  min-width: 0;
 }
 
 .drag-dots {
@@ -480,15 +475,10 @@ button.th-cell:hover {
   margin-bottom: 2px;
 }
 
-/* ── Task Name ──────────────────────────────────────────────── */
-.td-name {
-  min-width: 0;
-}
-
 .task-title {
   font-size: 13.5px;
   font-weight: 500;
-  color: #4b5563; /* slightly softer black */
+  color: #4b5563;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
