@@ -262,7 +262,8 @@ function sortBy(field: TaskSortField) {
 .list-view {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 32px; /* Increased gap between sections */
+  padding-bottom: 40px;
 }
 
 /* ── Section Header ─────────────────────────────────────────── */
@@ -274,20 +275,20 @@ function sortBy(field: TaskSortField) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 12px; /* More space before table */
 }
 
 .section-header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px; /* Increased gap between pill and count */
 }
 
 .status-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 14px;
+  padding: 6px 16px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
@@ -312,9 +313,9 @@ function sortBy(field: TaskSortField) {
   height: 28px;
   padding: 0 8px;
   border-radius: 6px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #f3f4f6;
   background: #ffffff;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #6b7280;
 }
@@ -326,7 +327,7 @@ function sortBy(field: TaskSortField) {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #f3f4f6;
   background: #ffffff;
   color: #9ca3af;
   cursor: pointer;
@@ -334,13 +335,13 @@ function sortBy(field: TaskSortField) {
 }
 
 .collapse-btn:hover {
-  background: #f3f4f6;
+  background: #f9fafb;
   color: #6b7280;
 }
 
 .collapse-icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   transition: transform 0.2s ease;
 }
 
@@ -350,30 +351,32 @@ function sortBy(field: TaskSortField) {
 
 /* ── Table Wrapper ──────────────────────────────────────────── */
 .table-wrapper {
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  border: 1px solid #f1f3f5; /* Fainter outer border */
   background: #ffffff;
   overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); /* very subtle shadow */
 }
 
 /* ── Table Grids ────────────────────────────────────────────── */
 .table-header {
   display: grid;
-  grid-template-columns: 50px 1.2fr 1.6fr 100px 110px 220px 110px 50px;
+  /* Adjusted column widths for better spacing */
+  grid-template-columns: 64px 1.4fr 2fr 130px 120px 230px 120px 56px;
   align-items: center;
-  height: 48px;
+  height: 52px;
   background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #f1f3f5;
 }
 
 .table-row {
   display: grid;
-  grid-template-columns: 50px 1.2fr 1.6fr 100px 110px 220px 110px 50px;
+  grid-template-columns: 64px 1.4fr 2fr 130px 120px 230px 120px 56px;
   align-items: center;
-  height: 56px;
-  border-bottom: 1px solid #e5e7eb;
+  height: 60px; /* Taller rows for more breathing room */
+  border-bottom: 1px solid #f1f3f5;
   background: #ffffff;
-  transition: background-color 0.12s;
+  transition: background-color 0.15s;
   cursor: pointer;
 }
 
@@ -382,7 +385,7 @@ function sortBy(field: TaskSortField) {
 }
 
 .table-row:hover {
-  background: #f9fafb;
+  background: #fafafa;
 }
 
 /* ── Cells ──────────────────────────────────────────────────── */
@@ -391,11 +394,11 @@ function sortBy(field: TaskSortField) {
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: #6b7280;
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid #f1f3f5;
   height: 100%;
-  padding: 0 16px;
+  padding: 0 20px; /* Increased cell padding */
   border-top: none;
   border-bottom: none;
   background: none;
@@ -409,7 +412,7 @@ button.th-cell {
 }
 
 button.th-cell:hover {
-  color: #4b5563;
+  color: #374151;
 }
 
 .th-icon {
@@ -423,8 +426,8 @@ button.th-cell:hover {
   display: flex;
   align-items: center;
   height: 100%;
-  padding: 0 16px;
-  border-right: 1px solid #e5e7eb;
+  padding: 0 20px; /* Match header padding */
+  border-right: 1px solid #f1f3f5;
 }
 
 .th-cell:last-child,
@@ -434,8 +437,8 @@ button.th-cell:hover {
 
 /* ── Drag Handle + Checkbox ─────────────────────────────────── */
 .td-drag {
-  gap: 6px;
-  padding: 0 10px;
+  gap: 12px; /* Spread drag dots and checkbox */
+  padding: 0 16px;
   justify-content: center;
 }
 
@@ -485,7 +488,7 @@ button.th-cell:hover {
 .task-title {
   font-size: 13.5px;
   font-weight: 500;
-  color: #374151;
+  color: #4b5563; /* slightly softer black */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -513,22 +516,22 @@ button.th-cell:hover {
 }
 
 .avatar-sm {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 10.5px;
+  font-weight: 600;
   color: #ffffff;
   border: 2px solid #ffffff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   position: relative;
 }
 
 .avatar-sm--overlap {
-  margin-left: -8px;
+  margin-left: -10px;
 }
 
 /* ── Type / Tag Badge ───────────────────────────────────────── */
@@ -536,9 +539,9 @@ button.th-cell:hover {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 500;
   color: #4b5563;
   background: #ffffff;
@@ -552,7 +555,7 @@ button.th-cell:hover {
 
 /* ── Timeline Date ──────────────────────────────────────────── */
 .timeline-text {
-  font-size: 12.5px;
+  font-size: 13px;
   color: #6b7280;
   white-space: nowrap;
   overflow: hidden;
@@ -569,9 +572,9 @@ button.th-cell:hover {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -609,10 +612,10 @@ button.th-cell:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #f3f4f6;
   background: #ffffff;
   color: #9ca3af;
   cursor: pointer;
@@ -620,20 +623,20 @@ button.th-cell:hover {
 }
 
 .action-menu-btn:hover {
-  background: #f3f4f6;
+  background: #f9fafb;
   color: #4b5563;
 }
 
 .action-dots {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 /* ── Empty State ────────────────────────────────────────────── */
 .empty-state {
-  padding: 32px;
+  padding: 40px;
   text-align: center;
-  font-size: 13px;
+  font-size: 13.5px;
   color: #9ca3af;
 }
 </style>
