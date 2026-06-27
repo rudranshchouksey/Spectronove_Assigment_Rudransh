@@ -5,10 +5,6 @@ import { STATUS_LABELS } from '@/BLL/taskManager';
 import {
   getAvatarColor,
   getInitials,
-  isOverdue,
-  formatDate,
-  PRIORITY_CONFIG,
-  getTagClass,
 } from '@/utils/helpers';
 
 const props = defineProps<{
@@ -175,28 +171,27 @@ function handleOverlayClick(e: MouseEvent) {
 </script>
 
 <template>
-  <div
-    class="modal-overlay"
-    @click="handleOverlayClick"
-  >
+  <div class="modal-overlay" @click="handleOverlayClick">
     <div class="modal-container">
       <!-- Top Bar -->
       <div class="modal-topbar">
-        <button
-          class="topbar-btn"
-          @click="emit('close')"
-        >
-          <svg class="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <!-- Close Button (Left) -->
+        <button class="topbar-btn" @click="emit('close')">
+          <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
+        <!-- Action Buttons (Right) -->
         <div class="topbar-actions">
+          <!-- Clock -->
           <button class="topbar-btn">
-            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </button>
+          <!-- Star -->
           <button class="topbar-btn">
-            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
           </button>
+          <!-- ... -->
           <button class="topbar-btn">
-            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"/></svg>
+            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 5v.01M12 12v.01M12 19v.01"/></svg>
           </button>
         </div>
       </div>
@@ -208,11 +203,7 @@ function handleOverlayClick(e: MouseEvent) {
           <h2 class="modal-title">{{ task.title }}</h2>
         </div>
         <div v-else class="modal-title-section">
-          <input
-            v-model="editTitle"
-            type="text"
-            class="edit-title-input"
-          />
+          <input v-model="editTitle" type="text" class="edit-title-input" />
         </div>
 
         <!-- Meta Fields -->
@@ -238,11 +229,7 @@ function handleOverlayClick(e: MouseEvent) {
                 {{ STATUS_BADGE[task.status].label }}
               </span>
             </div>
-            <select
-              v-else
-              v-model="editStatus"
-              class="edit-select"
-            >
+            <select v-else v-model="editStatus" class="edit-select">
               <option value="todo">{{ STATUS_LABELS['todo'] }}</option>
               <option value="in-progress">{{ STATUS_LABELS['in-progress'] }}</option>
               <option value="done">{{ STATUS_LABELS['done'] }}</option>
@@ -260,11 +247,7 @@ function handleOverlayClick(e: MouseEvent) {
                 {{ PRIORITY_BADGE[task.priority].label }}
               </span>
             </div>
-            <select
-              v-else
-              v-model="editPriority"
-              class="edit-select"
-            >
+            <select v-else v-model="editPriority" class="edit-select">
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
@@ -278,20 +261,9 @@ function handleOverlayClick(e: MouseEvent) {
               Due Date
             </div>
             <div v-if="!isEditing" class="meta-value-group">
-              <span class="meta-value" :class="{ 'meta-value--overdue': isOverdue(task.dueDate, task.status) }">
-                {{ dueDateRange }}
-              </span>
-              <span
-                v-if="isOverdue(task.dueDate, task.status)"
-                class="overdue-badge"
-              >⚠ Overdue</span>
+              <span class="meta-value">{{ dueDateRange }}</span>
             </div>
-            <input
-              v-else
-              v-model="editDueDate"
-              type="date"
-              class="edit-input"
-            />
+            <input v-else v-model="editDueDate" type="date" class="edit-input" />
           </div>
 
           <!-- Tags -->
@@ -301,19 +273,11 @@ function handleOverlayClick(e: MouseEvent) {
               Tags
             </div>
             <div v-if="!isEditing" class="tags-list">
-              <span
-                v-for="tag in task.tags"
-                :key="tag"
-                class="tag-chip"
-                :class="getTagClass(tag)"
-              >{{ tag }}</span>
+              <span v-for="tag in task.tags" :key="tag" class="tag-chip">
+                {{ tag }}
+              </span>
             </div>
-            <input
-              v-else
-              v-model="editTags"
-              type="text"
-              class="edit-input edit-input--wide"
-            />
+            <input v-else v-model="editTags" type="text" class="edit-input edit-input--wide" />
           </div>
 
           <!-- Assignees -->
@@ -334,12 +298,7 @@ function handleOverlayClick(e: MouseEvent) {
                 {{ getInitials(name) }}
               </div>
             </div>
-            <input
-              v-else
-              v-model="editAssignee"
-              type="text"
-              class="edit-input edit-input--wide"
-            />
+            <input v-else v-model="editAssignee" type="text" class="edit-input edit-input--wide" />
           </div>
         </div>
 
@@ -349,20 +308,14 @@ function handleOverlayClick(e: MouseEvent) {
           <div v-if="!isEditing">
             <p class="description-text">{{ task.description }}</p>
           </div>
-          <textarea
-            v-else
-            v-model="editDescription"
-            rows="3"
-            class="edit-textarea"
-          ></textarea>
+          <textarea v-else v-model="editDescription" rows="3" class="edit-textarea"></textarea>
         </div>
 
         <!-- Action Buttons (edit mode) -->
         <div v-if="isEditing" class="action-buttons action-buttons--editing">
-          <button class="btn btn--primary" @click="saveEdits">Save Changes</button>
+          <button class="btn btn--primary" @click="saveEdits">Save</button>
           <button class="btn btn--secondary" @click="isEditing = false">Cancel</button>
           <button class="btn btn--danger ml-auto" @click="deleteTask">
-            <svg class="icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             Delete
           </button>
         </div>
@@ -384,11 +337,9 @@ function handleOverlayClick(e: MouseEvent) {
           <!-- Edit/Delete button in view mode -->
           <div v-if="!isEditing" class="tab-actions">
             <button class="btn btn--sm btn--primary" @click="startEditing">
-              <svg class="icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               Edit
             </button>
             <button class="btn btn--sm btn--danger-outline" @click="deleteTask">
-              <svg class="icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
               Delete
             </button>
           </div>
@@ -400,15 +351,8 @@ function handleOverlayClick(e: MouseEvent) {
           <div class="activity-group">
             <h4 class="activity-group-title">Today</h4>
             <div class="activity-list">
-              <div
-                v-for="item in mockActivities.today"
-                :key="item.id"
-                class="activity-item"
-              >
-                <div
-                  class="activity-avatar"
-                  :style="{ backgroundColor: getAvatarColor(item.user) }"
-                >
+              <div v-for="item in mockActivities.today" :key="item.id" class="activity-item">
+                <div class="activity-avatar" :style="{ backgroundColor: getAvatarColor(item.user) }">
                   {{ getInitials(item.user) }}
                 </div>
                 <div class="activity-content">
@@ -445,15 +389,8 @@ function handleOverlayClick(e: MouseEvent) {
           <div class="activity-group">
             <h4 class="activity-group-title">Yesterday</h4>
             <div class="activity-list">
-              <div
-                v-for="item in mockActivities.yesterday"
-                :key="item.id"
-                class="activity-item"
-              >
-                <div
-                  class="activity-avatar"
-                  :style="{ backgroundColor: getAvatarColor(item.user) }"
-                >
+              <div v-for="item in mockActivities.yesterday" :key="item.id" class="activity-item">
+                <div class="activity-avatar" :style="{ backgroundColor: getAvatarColor(item.user) }">
                   {{ getInitials(item.user) }}
                 </div>
                 <div class="activity-content">
@@ -471,9 +408,6 @@ function handleOverlayClick(e: MouseEvent) {
 
         <!-- Other tabs placeholder -->
         <div v-else class="tab-placeholder">
-          <div class="placeholder-icon">
-            <svg class="icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          </div>
           <p class="placeholder-text">No items to display yet</p>
         </div>
       </div>
@@ -488,26 +422,36 @@ function handleOverlayClick(e: MouseEvent) {
   inset: 0;
   z-index: 50;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
 }
 
 /* ── Modal Container ────────────────────────────────────────── */
 .modal-container {
+  position: absolute;
+  right: 12px;
+  top: 12px;
   width: 100%;
   max-width: 580px;
-  max-height: 88vh;
+  height: calc(100vh - 24px);
   display: flex;
   flex-direction: column;
   background: #ffffff;
   border-radius: 20px;
   box-shadow:
-    0 25px 60px rgba(0, 0, 0, 0.18),
+    -10px 0 30px rgba(0, 0, 0, 0.1),
     0 8px 20px rgba(0, 0, 0, 0.06);
-  animation: modalIn 0.25s cubic-bezier(0.22, 0.68, 0, 1.1);
+  animation: slideInRight 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   overflow: hidden;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 /* ── Top Bar ────────────────────────────────────────────────── */
@@ -515,7 +459,7 @@ function handleOverlayClick(e: MouseEvent) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
+  padding: 16px 24px;
   border-bottom: 1px solid #f0f0f5;
   flex-shrink: 0;
 }
@@ -529,48 +473,47 @@ function handleOverlayClick(e: MouseEvent) {
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: #9ca3af;
+  color: #6b7280;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .topbar-btn:hover {
   background: #f3f4f6;
-  color: #6b7280;
+  color: #374151;
 }
 
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 
 /* ── Icons ──────────────────────────────────────────────────── */
 .icon-xs { width: 14px; height: 14px; }
 .icon-sm { width: 18px; height: 18px; }
-.icon-md { width: 20px; height: 20px; }
+.icon-md { width: 22px; height: 22px; }
 .icon-lg { width: 40px; height: 40px; }
-.icon-meta { width: 16px; height: 16px; flex-shrink: 0; }
+.icon-meta { width: 16px; height: 16px; flex-shrink: 0; color: #9ca3af; }
 .icon-file { width: 28px; height: 28px; }
 
 /* ── Modal Body ─────────────────────────────────────────────── */
 .modal-body {
-  padding: 24px 24px 20px;
+  padding: 24px 32px 32px;
   overflow-y: auto;
   flex: 1;
 }
 
 /* ── Title ──────────────────────────────────────────────────── */
 .modal-title-section {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .modal-title {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: #111827;
   line-height: 1.3;
-  letter-spacing: -0.01em;
 }
 
 .edit-title-input {
@@ -578,7 +521,7 @@ function handleOverlayClick(e: MouseEvent) {
   padding: 8px 12px;
   border: 1.5px solid #e5e7eb;
   border-radius: 10px;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   color: #111827;
   outline: none;
@@ -586,16 +529,16 @@ function handleOverlayClick(e: MouseEvent) {
 }
 
 .edit-title-input:focus {
-  border-color: #7c6dff;
-  box-shadow: 0 0 0 3px rgba(124, 109, 255, 0.1);
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
 }
 
 /* ── Meta Fields ────────────────────────────────────────────── */
 .meta-fields {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .meta-row {
@@ -608,8 +551,8 @@ function handleOverlayClick(e: MouseEvent) {
 .meta-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  width: 130px;
+  gap: 10px;
+  width: 140px;
   flex-shrink: 0;
   font-size: 13px;
   font-weight: 500;
@@ -617,14 +560,9 @@ function handleOverlayClick(e: MouseEvent) {
 }
 
 .meta-value {
-  font-size: 13.5px;
+  font-size: 13px;
   color: #374151;
-  font-weight: 450;
-}
-
-.meta-value--overdue {
-  color: #ef4444;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .meta-value-group {
@@ -638,93 +576,74 @@ function handleOverlayClick(e: MouseEvent) {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 12px;
-  border-radius: 20px;
+  padding: 4px 12px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  border: 1px solid;
 }
 
 .status-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
 }
 
 .status-badge--todo {
   background: #fffbeb;
-  color: #b45309;
-  border-color: #fde68a;
+  color: #d97706;
 }
 .status-dot--todo { background: #f59e0b; }
 
 .status-badge--progress {
-  background: #fef3c7;
-  color: #d97706;
-  border-color: #fcd34d;
+  background: #fff8eb;
+  color: #f59e0b;
 }
 .status-dot--progress { background: #f59e0b; }
 
 .status-badge--done {
   background: #ecfdf5;
-  color: #059669;
-  border-color: #a7f3d0;
+  color: #10b981;
 }
 .status-dot--done { background: #10b981; }
 
 /* ── Priority Badge ─────────────────────────────────────────── */
 .priority-badge {
   display: inline-flex;
-  padding: 2px 10px;
+  padding: 3px 12px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  border: 1px solid;
 }
 
 .priority-badge--low {
   background: #eef2ff;
-  color: #4f46e5;
-  border-color: #c7d2fe;
+  color: #6c5ce7;
 }
 
 .priority-badge--medium {
   background: #fffbeb;
   color: #d97706;
-  border-color: #fde68a;
 }
 
 .priority-badge--high {
   background: #fef2f2;
   color: #dc2626;
-  border-color: #fecaca;
-}
-
-/* ── Overdue Badge ──────────────────────────────────────────── */
-.overdue-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-size: 10px;
-  font-weight: 700;
-  color: #ef4444;
-  background: #fef2f2;
 }
 
 /* ── Tags ───────────────────────────────────────────────────── */
 .tags-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .tag-chip {
-  padding: 2px 10px;
-  border-radius: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
+  background: #f3f4f6;
+  color: #4b5563;
 }
 
 /* ── Assignee Avatar Stack ──────────────────────────────────── */
@@ -734,8 +653,8 @@ function handleOverlayClick(e: MouseEvent) {
 }
 
 .avatar-circle {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -744,33 +663,32 @@ function handleOverlayClick(e: MouseEvent) {
   font-weight: 700;
   color: #fff;
   border: 2px solid #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   position: relative;
 }
 
 .avatar-overlap {
-  margin-left: -8px;
+  margin-left: -6px;
 }
 
 /* ── Description Card ───────────────────────────────────────── */
 .description-card {
   background: #f9fafb;
-  border: 1px solid #f0f0f5;
-  border-radius: 14px;
-  padding: 16px 18px;
-  margin-bottom: 6px;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
 }
 
 .description-title {
-  font-size: 14px;
-  font-weight: 650;
+  font-size: 13px;
+  font-weight: 600;
   color: #111827;
   margin-bottom: 8px;
 }
 
 .description-text {
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.6;
   color: #6b7280;
 }
 
@@ -779,7 +697,7 @@ function handleOverlayClick(e: MouseEvent) {
   resize: none;
   padding: 10px 12px;
   border: 1.5px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 13px;
   color: #374151;
   background: #fff;
@@ -789,14 +707,14 @@ function handleOverlayClick(e: MouseEvent) {
 }
 
 .edit-textarea:focus {
-  border-color: #7c6dff;
-  box-shadow: 0 0 0 3px rgba(124, 109, 255, 0.1);
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
 }
 
 /* ── Edit Inputs ────────────────────────────────────────────── */
 .edit-select,
 .edit-input {
-  padding: 5px 10px;
+  padding: 6px 12px;
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
   font-size: 13px;
@@ -808,8 +726,8 @@ function handleOverlayClick(e: MouseEvent) {
 
 .edit-select:focus,
 .edit-input:focus {
-  border-color: #7c6dff;
-  box-shadow: 0 0 0 3px rgba(124, 109, 255, 0.1);
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
 }
 
 .edit-input--wide {
@@ -819,57 +737,57 @@ function handleOverlayClick(e: MouseEvent) {
 /* ── Section Divider ────────────────────────────────────────── */
 .section-divider {
   height: 1px;
-  background: #f0f0f5;
-  margin: 16px 0 0;
+  background: #f3f4f6;
+  margin: 0 -32px 16px;
 }
 
 /* ── Tabs Bar ───────────────────────────────────────────────── */
 .tabs-bar {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 12px 0 8px;
-  border-bottom: 1px solid #f0f0f5;
-  margin-bottom: 4px;
+  gap: 24px;
+  padding: 0 0 16px;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 20px;
 }
 
 .tab-btn {
-  padding: 6px 14px;
-  border-radius: 8px;
   border: none;
   background: transparent;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
-  color: #9ca3af;
+  color: #6b7280;
   cursor: pointer;
   transition: all 0.15s ease;
   position: relative;
+  padding: 0 0 16px;
+  margin-bottom: -17px; /* Align with border-bottom */
 }
 
 .tab-btn:hover {
-  color: #6b7280;
+  color: #374151;
 }
 
 .tab-btn--active {
-  color: #7c6dff;
+  color: #6c5ce7;
   font-weight: 600;
 }
 
 .tab-btn--active::after {
   content: '';
   position: absolute;
-  bottom: -9px;
-  left: 14px;
-  right: 14px;
+  bottom: 0;
+  left: 0;
+  right: 0;
   height: 2px;
-  background: #7c6dff;
-  border-radius: 2px;
+  background: #6c5ce7;
+  border-radius: 2px 2px 0 0;
 }
 
 .tab-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-left: auto;
 }
 
@@ -879,21 +797,20 @@ function handleOverlayClick(e: MouseEvent) {
 }
 
 .activity-group {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .activity-group-title {
   font-size: 14px;
-  font-weight: 650;
+  font-weight: 600;
   color: #111827;
-  margin-bottom: 14px;
-  padding-top: 8px;
+  margin-bottom: 16px;
 }
 
 .activity-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .activity-item {
@@ -909,16 +826,17 @@ function handleOverlayClick(e: MouseEvent) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .activity-content {
   flex: 1;
   min-width: 0;
+  margin-top: -2px;
 }
 
 .activity-text {
@@ -930,18 +848,18 @@ function handleOverlayClick(e: MouseEvent) {
 
 .activity-user {
   font-weight: 600;
-  color: #374151;
+  color: #111827;
 }
 
 .activity-target {
   font-weight: 600;
-  color: #374151;
+  color: #111827;
 }
 
 .activity-time {
   font-size: 11px;
   color: #9ca3af;
-  margin-top: 2px;
+  margin-top: 4px;
   display: block;
 }
 
@@ -949,13 +867,14 @@ function handleOverlayClick(e: MouseEvent) {
 .file-attachment {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 8px;
-  padding: 8px 12px;
-  background: #fef2f2;
-  border-radius: 10px;
-  border: 1px solid #fecaca;
-  max-width: 220px;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #f3f4f6;
+  max-width: 260px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .file-icon {
@@ -972,14 +891,15 @@ function handleOverlayClick(e: MouseEvent) {
 }
 
 .file-name {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: #111827;
 }
 
 .file-meta {
   font-size: 11px;
-  color: #9ca3af;
+  color: #6b7280;
+  margin-top: 2px;
 }
 
 .file-download {
@@ -999,22 +919,14 @@ function handleOverlayClick(e: MouseEvent) {
 }
 
 .file-download:hover {
-  background: rgba(0,0,0,0.05);
-  color: #6b7280;
+  background: #f3f4f6;
+  color: #374151;
 }
 
 /* ── Tab Placeholder ────────────────────────────────────────── */
 .tab-placeholder {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   padding: 40px 20px;
-  gap: 12px;
-}
-
-.placeholder-icon {
-  color: #d1d5db;
 }
 
 .placeholder-text {
@@ -1029,7 +941,7 @@ function handleOverlayClick(e: MouseEvent) {
   gap: 6px;
   border: none;
   border-radius: 8px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -1039,24 +951,18 @@ function handleOverlayClick(e: MouseEvent) {
 .btn--primary {
   background: #6c5ce7;
   color: #fff;
-  padding: 7px 16px;
-  box-shadow: 0 1px 3px rgba(108, 92, 231, 0.25);
+  padding: 6px 14px;
 }
 
 .btn--primary:hover {
   background: #5a45d6;
-  box-shadow: 0 3px 8px rgba(108, 92, 231, 0.3);
-}
-
-.btn--primary:active {
-  transform: scale(0.98);
 }
 
 .btn--secondary {
   background: transparent;
-  color: #6b7280;
-  padding: 7px 16px;
-  border: 1px solid #e5e7eb;
+  color: #4b5563;
+  padding: 6px 14px;
+  border: 1px solid #d1d5db;
 }
 
 .btn--secondary:hover {
@@ -1066,8 +972,8 @@ function handleOverlayClick(e: MouseEvent) {
 .btn--danger {
   background: transparent;
   color: #ef4444;
-  padding: 7px 14px;
-  border: 1px solid #fecaca;
+  padding: 6px 14px;
+  border: 1px solid #fca5a5;
 }
 
 .btn--danger:hover {
@@ -1077,7 +983,7 @@ function handleOverlayClick(e: MouseEvent) {
 .btn--danger-outline {
   background: transparent;
   color: #ef4444;
-  padding: 5px 10px;
+  padding: 6px 12px;
   border: 1px solid #fecaca;
 }
 
@@ -1086,8 +992,8 @@ function handleOverlayClick(e: MouseEvent) {
 }
 
 .btn--sm {
-  padding: 5px 10px;
-  font-size: 11.5px;
+  padding: 6px 12px;
+  font-size: 12px;
 }
 
 .action-buttons {
@@ -1097,22 +1003,10 @@ function handleOverlayClick(e: MouseEvent) {
 }
 
 .action-buttons--editing {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .ml-auto {
   margin-left: auto;
-}
-
-/* ── Animation ──────────────────────────────────────────────── */
-@keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: scale(0.96) translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
 }
 </style>
