@@ -3,10 +3,7 @@ import type { Task, TaskManager } from '@/BLL/taskManager';
 import {
   getAvatarColor,
   getInitials,
-  isOverdue,
   formatDate,
-  PRIORITY_CONFIG,
-  getTagClass,
 } from '@/utils/helpers';
 
 defineProps<{
@@ -14,96 +11,75 @@ defineProps<{
   manager: TaskManager;
 }>();
 
-const STATUS_BADGE: Record<string, { label: string; class: string }> = {
-  'todo': { label: 'Not Started', class: 'bg-amber-100 text-amber-700' },
-  'in-progress': { label: 'In Research', class: 'bg-blue-100 text-blue-700' },
-  'done': { label: 'Complete', class: 'bg-emerald-100 text-emerald-700' },
+const TAG_CONFIG: Record<string, { label: string; dot: string; bg: string; text: string }> = {
+  'todo': { label: 'Not Started', dot: 'bg-gray-400', bg: 'bg-white', text: 'text-gray-700' },
+  'in-progress': { label: 'In Research', dot: 'bg-blue-500', bg: 'bg-white', text: 'text-gray-700' },
+  'done': { label: 'Complete', dot: 'bg-pink-500', bg: 'bg-white', text: 'text-gray-700' },
 };
 </script>
 
 <template>
   <div
-    class="group cursor-pointer rounded-xl border border-border-light bg-white p-4 shadow-card transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5"
+    class="group relative cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-all duration-200 hover:shadow-md hover:border-gray-300 flex flex-col gap-3"
   >
-    <!-- Status Badge -->
-    <div class="mb-3">
+    <!-- Top Row: Tag & More Button -->
+    <div class="flex items-center justify-between">
       <span
-        class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
-        :class="STATUS_BADGE[task.status]?.class"
+        class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-2.5 py-1 text-[11px] font-medium"
+        :class="[TAG_CONFIG[task.status]?.bg, TAG_CONFIG[task.status]?.text]"
       >
-        <span class="h-1.5 w-1.5 rounded-full" :class="task.status === 'todo' ? 'bg-amber-500' : task.status === 'in-progress' ? 'bg-blue-500' : 'bg-emerald-500'"></span>
-        {{ STATUS_BADGE[task.status]?.label }}
+        <span class="h-1.5 w-1.5 rounded-full" :class="TAG_CONFIG[task.status]?.dot"></span>
+        {{ TAG_CONFIG[task.status]?.label }}
       </span>
+      
+      <button class="text-gray-400 hover:text-gray-600 opacity-0 transition-opacity group-hover:opacity-100">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01"/></svg>
+      </button>
     </div>
 
-    <!-- Title -->
-    <h4 class="mb-1 text-sm font-semibold text-text-primary line-clamp-1">
-      {{ task.title }}
-    </h4>
-
-    <!-- Description -->
-    <p class="mb-3 text-xs text-text-secondary line-clamp-2 leading-relaxed">
-      {{ task.description }}
-    </p>
-
-    <!-- Tags -->
-    <div v-if="task.tags.length > 0" class="mb-3 flex flex-wrap gap-1">
-      <span
-        v-for="tag in task.tags.slice(0, 3)"
-        :key="tag"
-        class="rounded-md px-1.5 py-0.5 text-[10px] font-medium"
-        :class="getTagClass(tag)"
-      >
-        {{ tag }}
-      </span>
+    <!-- Title & Description -->
+    <div>
+      <h4 class="text-[14px] font-bold text-gray-900 leading-snug mb-1.5">
+        {{ task.title }}
+      </h4>
+      <p class="text-[12px] text-gray-500 line-clamp-2 leading-relaxed">
+        {{ task.description || 'No description provided.' }}
+      </p>
     </div>
+
+    <!-- Assignees -->
+    <div class="flex items-center gap-2 mt-1">
+      <span class="text-[12px] text-gray-400 font-medium">Assignees :</span>
+      <div
+        class="flex h-6 w-6 items-center justify-center rounded-full border border-white text-[9px] font-bold text-white shadow-sm"
+        :style="{ backgroundColor: getAvatarColor(task.assignee) }"
+        :title="task.assignee"
+      >
+        {{ getInitials(task.assignee) }}
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="h-px w-full bg-gray-100 my-1"></div>
 
     <!-- Footer -->
-    <div class="flex items-center justify-between">
-      <!-- Assignee -->
-      <div class="flex items-center gap-2">
-        <span class="text-[10px] text-text-muted">Assignees :</span>
-        <div
-          class="flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold text-white shadow-sm"
-          :style="{ backgroundColor: getAvatarColor(task.assignee) }"
-          :title="task.assignee"
-        >
-          {{ getInitials(task.assignee) }}
+    <div class="flex items-center justify-between text-[11px] text-gray-400 font-medium">
+      <div class="flex items-center gap-3.5">
+        <!-- Comments -->
+        <div class="flex items-center gap-1.5 hover:text-gray-600 transition-colors">
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          12 Comments
+        </div>
+        <!-- Links -->
+        <div class="flex items-center gap-1.5 hover:text-gray-600 transition-colors">
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          1 Links
         </div>
       </div>
-
-      <!-- Priority -->
-      <span
-        class="rounded-md px-2 py-0.5 text-[10px] font-semibold"
-        :class="PRIORITY_CONFIG[task.priority].bgClass"
-      >
-        {{ PRIORITY_CONFIG[task.priority].label }}
-      </span>
-    </div>
-
-    <!-- Due Date -->
-    <div class="mt-2.5 flex items-center gap-1.5 text-[10px]">
-      <svg class="h-3 w-3" :class="isOverdue(task.dueDate, task.status) ? 'text-danger' : 'text-text-muted'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-      <span
-        class="font-medium"
-        :class="isOverdue(task.dueDate, task.status) ? 'text-danger font-semibold' : 'text-text-muted'"
-      >
-        {{ formatDate(task.dueDate) }}
-      </span>
-      <span
-        v-if="isOverdue(task.dueDate, task.status)"
-        class="ml-1 flex items-center gap-0.5 rounded-full bg-danger-bg px-1.5 py-0.5 text-[9px] font-bold text-danger"
-      >
-        <svg class="h-2.5 w-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-        Overdue
-      </span>
-    </div>
-
-    <!-- More button -->
-    <div class="absolute right-3 top-3 opacity-0 transition-opacity group-hover:opacity-100">
-      <button class="rounded-md p-1 text-text-muted hover:bg-surface-hover hover:text-text-secondary">
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"/></svg>
-      </button>
+      <!-- Date / Priority / Tasks -->
+      <div class="flex items-center gap-1.5 text-brand-500 font-semibold bg-brand-50 px-2 py-0.5 rounded text-[10px]">
+        0/3
+      </div>
     </div>
   </div>
 </template>
